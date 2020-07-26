@@ -1,0 +1,3 @@
+[submodule "LabelboxToTFRecord"]
+	path = LabelboxToTFRecord
+	url = https://github.com/caseydaly/LabelboxToTFRecord.git
