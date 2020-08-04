@@ -1,0 +1,17 @@
+# Find Jaws
+This project demonstrates the [Shark Spotting with Drones Research Project](https://docs.google.com/document/d/18uqnojNYa7BEkPAeKApi6UgwcMfevGOGDyrzOAN_uVM/edit) into an interactive [Streamlit](https://streamlit.io) app. 
+
+Sponsored by Cal Poly SLO
+
+Using PyTorch and Labelbox
+
+In collaboration with the Shark Lab @ CSULB
+
+## Team members:
+- Professor Franz Kurfess
+- Kathir Gounder
+- Grace Nolan
+- Daniel Moore
+- Caroline Skae
+- Damon Tan
+- Casey Daly
