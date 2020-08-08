@@ -1,0 +1,17 @@
+{
+    "shark": {
+        "color": "red"
+    },
+    "person": {
+        "color": "orange"
+    },
+    "sealion": {
+        "color": "yellow"
+    },
+    "dolphin": {
+        "color": "lime-green"
+    },
+    "boat": {
+        "color": "green"
+    }
+}
