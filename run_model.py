@@ -3,14 +3,15 @@ import cv2
 import time
 from Model import PyTorchModel
 from Model import TFModel
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from Label import Label
 import webcolors
 import json
 import math
 
 #contains info about each class, i.e. what color sharks bounding box should be
-classes = json.load("classes.json")
+with open("classes.json") as json_file:
+    classes = json.load(json_file)
 
 #Ground Sample Distance for this video (find online based on the drones specs)
 GSD = .86
@@ -44,12 +45,12 @@ def run_model(mp4_file, model):
 def display_bounding_boxes(frame, labels):
     for label in labels:
         label_name = label.group.lower()
-            if label_name in classes:
-                color_of_box = classes["label_name"]["color"]
-            else:
-                print("Couldn't find color for this object, using black")
-                color_of_box = (0, 0, 0)
-            cv2.rectangle(frame, (label.x_min, label.y_min), (label.x_max, label.y_max), webcolors.name_to_rgb(color_of_box), thickness=3)
+        if label_name in classes:
+            color_of_box = classes["label_name"]["color"]
+        else:
+            print("Couldn't find color for this object, using black")
+            color_of_box = (0, 0, 0)
+        cv2.rectangle(frame, (label.x_min, label.y_min), (label.x_max, label.y_max), webcolors.name_to_rgb(color_of_box), thickness=3)
 
 def display_distances(frame, shark_distances):
     color_of_line = classes["shark"]["color"]
@@ -86,7 +87,7 @@ def midpoint_of_line(p1: Tuple[int, int], p2: Tuple[int, int]) -> Tuple[int, int
 
 # if a shark is detected in the frame, get the distances from the shark to other sharks and
 # humans in the frame
-def get_distances_from_sharks(labels: List[Label]) -> Dict[Label, List[Label]]
+def get_distances_from_sharks(labels: List[Label]) -> Dict[Label, List[Label]]:
     shark_distances = dict()
     for label in labels:
         if label.group.lower() == 'shark':
@@ -110,10 +111,10 @@ def distance_between_ellipses():
 
 
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run PyTorch or TensorFlow model on an mp4 video.')
     parser.add_argument('mp4', help="Path to the video.")
     args = parser.parse_args()
-
-    model = PyTorchModel("actual model goes here") #replace the string with the actual PyTorch or TensorFlow Model
-    run_model(args.mp4, model)
+    model = PyTorchModel('drive/My Drive/checkpoint.pth')
+    #run_model(args.mp4, model)
