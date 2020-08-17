@@ -8,6 +8,10 @@ from Label import Label
 import webcolors
 import json
 import math
+from google_drive import DriveConnection
+import time
+import torch
+from torch.autograd import Variable
 
 #contains info about each class, i.e. what color sharks bounding box should be
 with open("classes.json") as json_file:
@@ -22,9 +26,11 @@ def run_model(mp4_file, model):
     count = 0
     while success:
 
+        print("frame type: {}".format(str(type(frame))))
+        x = Variable(torch.from_numpy(frame))
         #run model predictions
-        labels = model.predict(frame)
-
+        labels = model.predict(x)
+        time.sleep(20)
         #display bounding boxes with labels
         display_bounding_boxes(frame, labels)
 
@@ -115,6 +121,22 @@ def distance_between_ellipses():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run PyTorch or TensorFlow model on an mp4 video.')
     parser.add_argument('mp4', help="Path to the video.")
+    parser.add_argument('model', help="PyTorch or TensorFlow model file (specify --drive flag for Google Drive path).")
+    parser.add_argument('--drive', help="File is a Google Drive file.", action="store_true")
     args = parser.parse_args()
-    model = PyTorchModel('drive/My Drive/checkpoint.pth')
-    #run_model(args.mp4, model)
+
+    if args.drive:
+        print("Retrieving model from Google Drive.")
+        drive = DriveConnection()
+        file_stream = None
+        #try:
+        MIME_type = "text/x-python"
+        file_stream = drive.getFileByName(args.model, MIME_type)
+        #except:
+        #print("could not find the Google Drive file for MIME type {}".format(MIME_type))
+        if file_stream:
+            model = PyTorchModel(file_stream)
+    else:
+        print("Retrieving local model.")
+        model = PyTorchModel(args.model)
+    run_model(args.mp4, model)

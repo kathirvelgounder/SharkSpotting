@@ -27,25 +27,31 @@ import time
 from matplotlib import pyplot
 from matplotlib.patches import Rectangle
 import numpy as np
+import sys
 
 class PyTorchModel:
 
     #create model by loading it in from Google Drive path
-    def __init__(self, filepath):
+    def __init__(self, f):
         trainable_backbone_layers = 5
         pretrained = True
         backbone = resnet_fpn_backbone('resnet50', True, trainable_layers=trainable_backbone_layers)
         self.model = FasterRCNN(backbone, num_classes=10, max_size = 3840, min_size = 2160, rpn_pre_nms_top_n_train=2000, rpn_pre_nms_top_n_test=2000, rpn_post_nms_top_n_train=2000, rpn_post_nms_top_n_test=2000, box_detections_per_img=100,rpn_nms_thresh=0.01, box_nms_thresh=0.01)
         device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         self.model.to(device)
-        self.model.load_state_dict(torch.load(filepath, map_location=device))
+        if (isinstance(f, str)): #local file
+            print("Loading model from local file at {}".format(f))
+            self.model.load_state_dict(torch.load(f, map_location=device))
+        elif (isinstance(f, io.BytesIO)): #stream
+            print("Loading model from stream")
+            pass
         
-    # def predict(self, frame) -> List[Label]:
-    #     labels = list()
-    #     self.model.eval()
-    #     prediction = model(frame)
-    #     print(type(prediction))
-    #     return labels
+    def predict(self, frame) -> List[Label]:
+        labels = list()
+        self.model.eval()
+        prediction = self.model(frame)
+        print(type(prediction))
+        return labels
 
 
 
