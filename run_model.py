@@ -26,8 +26,9 @@ def run_model(mp4_file, model):
     count = 0
     while success:
 
-        print("frame type: {}".format(str(type(frame))))
-        x = Variable(torch.from_numpy(frame))
+        x = torch.Tensor(frame)
+        x = x.permute(2, 0, 1)
+        x = x[None, :, :]
         #run model predictions
         labels = model.predict(x)
         time.sleep(20)
