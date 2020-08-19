@@ -31,6 +31,7 @@ def run_model(mp4_file, model):
         x = x[None, :, :]
         #run model predictions
         labels = model.predict(x)
+        print(labels)
         time.sleep(20)
         #display bounding boxes with labels
         display_bounding_boxes(frame, labels)
