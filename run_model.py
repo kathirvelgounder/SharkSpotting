@@ -26,9 +26,13 @@ def run_model(mp4_file, model):
     count = 0
     while success:
 
+
         x = torch.Tensor(frame)
         x = x.permute(2, 0, 1)
+        print(x.shape)
         x = x[None, :, :]
+        print(x.shape)
+
         #run model predictions
         labels = model.predict(x)
         print(labels)

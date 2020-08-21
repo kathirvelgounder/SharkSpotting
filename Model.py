@@ -48,11 +48,10 @@ class PyTorchModel:
             pass
         
     def predict(self, frame) -> List[Label]:
-        labels = list()
         self.model.eval()
         prediction = self.model(frame)
         print(type(prediction))
-        return labels
+        return prediction
 
 
 
