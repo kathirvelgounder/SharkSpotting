@@ -2,12 +2,20 @@ import pafy
 import cv2
 import youtube_dl
 import argparse
+from Label import Label
+from typing import List, Tuple, Dict
+from Model import PyTorchModel
+import webcolors
+
+ydl_opts = {
+    'nocheckcertificate:': True
+}
 
 class LiveStream:
 
     def __init__(self, url, model):
         self.url = url
-        video = pafy.new(url)
+        video = pafy.new(url, ydl_opts=ydl_opts)
         best = video.getbest(preftype="mp4")
         self.capture = cv2.VideoCapture()
         self.capture.open(best.url)
@@ -24,7 +32,7 @@ class LiveStream:
             labels = self.model.predict(frame)
 
             #display bounding boxes with labels
-            display_bounding_boxes(frame, labels)
+            self.display_bounding_boxes(frame, labels)
 
             # #display lines between sharks and other sharks or sharks and people, with distances labeled
             # if frame_has_shark(labels):
@@ -33,13 +41,13 @@ class LiveStream:
 
             #display this frame
             frame = cv2.resize(frame, dsize=(1024, 540), interpolation=cv2.INTER_CUBIC)
-            cv2.imshow(mp4_file,frame)
+            cv2.imshow(self.url,frame)
 
             #need this for the video stream to work continuously, basically says press 'q' to quit
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 break
 
-            success, frame = vidcap.read()
+            success, frame = self.capture.read()
         
     def display_bounding_boxes(self, frame, labels):
         for label in labels:
@@ -57,9 +65,9 @@ class LiveStream:
             for other in shark_distances[shark_label]:
                 other_coords = other.get_midpoint()
                 cv2.line(frame, shark_coords, other_coords, webcolors.name_to_rgb(color_of_line), 3)
-                text_location = midpoint_of_line(shark_coords, other_coords)
-                distance = distance_between_objects(shark_label, other) * GSD
-                display_label(frame, text_location, str(int(distance)))
+                text_location = self.midpoint_of_line(shark_coords, other_coords)
+                distance = self.distance_between_objects(shark_label, other) * GSD
+                self.display_label(frame, text_location, str(int(distance)))
             
 
 
@@ -115,6 +123,6 @@ if __name__ == '__main__':
     parser.add_argument('model', help="PyTorch or TensorFlow model file (local).")
     args = parser.parse_args()
     model = PyTorchModel(args.model)
-    live_stream = LiveStream(args.stream, args.model) 
+    live_stream = LiveStream(args.stream, model) 
     live_stream.analyze_stream() #run model on live stream
     
