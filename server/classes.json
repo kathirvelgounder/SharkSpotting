@@ -1,0 +1,46 @@
+{
+    "1": {
+        "color": "red",
+        "category": "shark",
+        "subcategory": "juvenile white shark"
+    },
+    "2": {
+        "color": "orange",
+        "category": "person",
+        "subcategory": "surfer"
+    },
+    "3": {
+        "color": "orange",
+        "category": "person",
+        "subcategory": "paddleboarder"
+    },
+    "4": {
+        "color": "orange",
+        "category": "person",
+        "subcategory": "swimmer"
+    },
+    "5": {
+        "color": "orange",
+        "category": "person",
+        "subcategory": "wader"
+    },
+    "6": {
+        "color": "red",
+        "category": "shark",
+        "subcategory": "leopard shark"
+    },
+    "7": {
+        "color": "limegreen",
+        "category": "dolphin"
+    },
+    "8": {
+        "color": "green",
+        "category": "boat"
+    }
+    ,
+    "9": {
+        "color": "orange",
+        "category": "person",
+        "subcategory": "bodyboarder"
+    }
+}
