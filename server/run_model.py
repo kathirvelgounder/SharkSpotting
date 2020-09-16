@@ -12,30 +12,49 @@ from google_drive import DriveConnection
 import time
 import torch
 from torch.autograd import Variable
+from threading import Thread
 
 #Ground Sample Distance for this video (find online based on the drones specs)
 GSD = .86
+make_prediction = True
+current_frame = None
+
+def predict_and_display(frame, model, mp4_file):
+    global make_prediction, current_frame
+    #run model predictions
+    labels = model.predict(frame)
+
+    #display bounding boxes with labels
+    display_bounding_boxes(frame, labels)
+
+    # #display lines between sharks and other sharks or sharks and people, with distances labeled
+    # if frame_has_shark(labels):
+    #     shark_distances = get_distances_from_sharks(labels)
+    #     display_distances(frame, shark_distances)
+
+    #display this frame
+    frame = cv2.resize(frame, dsize=(1024, 540), interpolation=cv2.INTER_CUBIC)
+    current_frame = frame
+    make_prediction = True
+
 
 def run_model(mp4_file, model):
+    global make_prediction, current_frame
     vidcap = cv2.VideoCapture(mp4_file)
     success, frame = vidcap.read()
+    current_frame = frame
     count = 0
     while success:
-        #run model predictions
-        labels = model.predict(frame)
 
-        #display bounding boxes with labels
-        display_bounding_boxes(frame, labels)
 
-        # #display lines between sharks and other sharks or sharks and people, with distances labeled
-        # if frame_has_shark(labels):
-        #     shark_distances = get_distances_from_sharks(labels)
-        #     display_distances(frame, shark_distances)
-
-        #display this frame
-        frame = cv2.resize(frame, dsize=(1024, 540), interpolation=cv2.INTER_CUBIC)
-        cv2.imshow(mp4_file,frame)
-
+        cv2.imshow(mp4_file,current_frame)
+        time.sleep(.2)
+        
+        if make_prediction:
+            make_prediction = False
+            thread = Thread(target=predict_and_display, args=(frame, model, mp4_file))
+            thread.start()
+            
         #need this for the video stream to work continuously, basically says press 'q' to quit
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break

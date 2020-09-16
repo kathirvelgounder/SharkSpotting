@@ -6,10 +6,13 @@ from Label import Label
 from typing import List, Tuple, Dict
 from Model import PyTorchModel
 import webcolors
+from threading import Thread
 
 ydl_opts = {
     'nocheckcertificate:': True
 }
+
+make_prediction = True
 
 class LiveStream:
 
@@ -24,25 +27,33 @@ class LiveStream:
     def display_frame(self, frame):
         cv2.imshow('frame', frame)
 
+    def make_prediction(self, frame):
+        #run model predictions
+        labels = self.model.predict(frame)
+
+        #display bounding boxes with labels
+        self.display_bounding_boxes(frame, labels)
+
+        # #display lines between sharks and other sharks or sharks and people, with distances labeled
+        # if frame_has_shark(labels):
+        #     shark_distances = get_distances_from_sharks(labels)
+        #     display_distances(frame, shark_distances)
+
+        #display this frame
+        frame = cv2.resize(frame, dsize=(1024, 540), interpolation=cv2.INTER_CUBIC)
+        cv2.imshow(self.url,frame)
+        make_prediction = True
+        
+
     def analyze_stream(self):
         success, frame = self.capture.read()
         count = 0
         while success:
-            #run model predictions
-            labels = self.model.predict(frame)
 
-            #display bounding boxes with labels
-            self.display_bounding_boxes(frame, labels)
-
-            # #display lines between sharks and other sharks or sharks and people, with distances labeled
-            # if frame_has_shark(labels):
-            #     shark_distances = get_distances_from_sharks(labels)
-            #     display_distances(frame, shark_distances)
-
-            #display this frame
-            frame = cv2.resize(frame, dsize=(1024, 540), interpolation=cv2.INTER_CUBIC)
-            cv2.imshow(self.url,frame)
-
+            if (make_prediction):
+                make_prediction = False
+                thread = Thread(target=self.make_prediction(frame))
+                thread.start()
             #need this for the video stream to work continuously, basically says press 'q' to quit
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 break
@@ -51,12 +62,12 @@ class LiveStream:
         
     def display_bounding_boxes(self, frame, labels):
         for label in labels:
-            #if label.score > 0.8:
-            label_name = label.group.lower()
-            upperLeft = (label.x_min, label.y_min)
-            lowerRight = (label.x_max, label.y_max)
-            print(label_name + " at " + str(upperLeft) + " " + str(lowerRight))
-            cv2.rectangle(frame, upperLeft, lowerRight, webcolors.name_to_rgb(label.color), thickness=3)
+            if label.score > 0.4:
+                label_name = label.group.lower()
+                upperLeft = (label.x_min, label.y_min)
+                lowerRight = (label.x_max, label.y_max)
+                print(label_name + " at " + str(upperLeft) + " " + str(lowerRight))
+                cv2.rectangle(frame, upperLeft, lowerRight, webcolors.name_to_rgb(label.color), thickness=3)
 
     def display_distances(self, frame, shark_distances):
         color_of_line = classes["shark"]["color"]
